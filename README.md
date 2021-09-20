@@ -11,7 +11,7 @@
 
 - 📄 Know about my experiences [https://www.linkedin.com/in/mwildani/](https://www.linkedin.com/in/mwildani/)
 
-- ⚡ Fun fact **i like talkting to myself while coding xD**
+- ⚡ Fun fact **i like talking to myself while coding xD**
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
