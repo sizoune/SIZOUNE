@@ -3,9 +3,9 @@
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=sizoune&label=Profile%20views&color=0e75b6&style=flat" alt="sizoune" /> </p>
 
-- 🔭 I’m currently working on **Zibdy Health Android App**
+- 🔭 I’m currently working on **-**
 
-- 🌱 I’m currently learning **Jetpack Compose and other Android Stuff**
+- 🌱 I’m currently learning **Flutter**
 
 - 📫 How to reach me **muhammadwildaniskandar@gmail.com**
 
