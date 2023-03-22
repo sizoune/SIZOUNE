@@ -3,9 +3,9 @@
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=sizoune&label=Profile%20views&color=0e75b6&style=flat" alt="sizoune" /> </p>
 
-- 🔭 I’m currently working on **-**
+- 🔭 I’m currently working on **Re-creating TabalongPedia Apps using Jetpack Compose :)**
 
-- 🌱 I’m currently learning **Flutter**
+- 🌱 I’m currently learning **Jetpack Compose**
 
 - 📫 How to reach me **muhammadwildaniskandar@gmail.com**
 
