@@ -3,7 +3,7 @@
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=sizoune&label=Profile%20views&color=0e75b6&style=flat" alt="sizoune" /> </p>
 
-- 🔭 I’m currently working on **Re-creating TabalongPedia Apps using Jetpack Compose :)**
+- 🔭 I’m currently working on **Migrating MyDinkes Project UI from XML to Jetpack Compose**
 
 - 🌱 I’m currently learning **Jetpack Compose**
 
@@ -11,7 +11,9 @@
 
 - 📄 Know about my experiences [https://www.linkedin.com/in/mwildani/](https://www.linkedin.com/in/mwildani/)
 
-- ⚡ Fun fact **i like talking to myself while coding xD**
+- ⚡ Fun fact **i like talking to myself while coding xD** 
+
+-  <img src="https://github.com/sizoune/SIZOUNE/assets/13961066/4804fa4a-db16-48e3-9e01-89a4848d17c1" width="16" />  [Check out My Released App in Playstore!](https://play.google.com/store/apps/developer?id=Tabalong+Tech)
 
 <h3 align="left">Connect with me:</h3>
 <p align="left">
