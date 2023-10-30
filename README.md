@@ -3,9 +3,7 @@
 
 <p align="left"> <img src="https://komarev.com/ghpvc/?username=sizoune&label=Profile%20views&color=0e75b6&style=flat" alt="sizoune" /> </p>
 
-- 🔭 I’m currently learning to be a **Full-Stack Developer**
-
-- 🌱 I’m currently learning **Jetpack Compose**
+- 🌱 I’m currently learning to be a **Full-Stack Developer**
 
 - 📫 How to reach me **muhammadwildaniskandar@gmail.com**
 
