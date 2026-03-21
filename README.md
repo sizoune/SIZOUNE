@@ -19,7 +19,7 @@
 - Building government digital services & internal tools at **Diskominfo Tabalong**
 - Currently exploring **AI/RAG systems** with LangChain, Qdrant, and multi-model LLM pipelines
 - Building full-stack apps with **Next.js**, **TanStack Start**, and **Nuxt/Nitro**
-- Comfortable across the stack: **frontend**, **backend**, **mobile**, **AI/ML**, **DevOps**
+- Comfortable across the stack: **frontend**, **backend**, **mobile**, **DevOps**
 
 ---
 
@@ -61,14 +61,6 @@
 ![Redis](https://img.shields.io/badge/Redis-DC382D?style=flat&logo=redis&logoColor=white)
 ![Supabase](https://img.shields.io/badge/Supabase-3FCF8E?style=flat&logo=supabase&logoColor=white)
 ![Firebase](https://img.shields.io/badge/Firebase-FFCA28?style=flat&logo=firebase&logoColor=black)
-
-**AI / ML**
-
-![LangChain](https://img.shields.io/badge/LangChain-1C3C3C?style=flat&logo=langchain&logoColor=white)
-![Qdrant](https://img.shields.io/badge/Qdrant-DC244C?style=flat&logo=qdrant&logoColor=white)
-![OpenAI](https://img.shields.io/badge/OpenAI-412991?style=flat&logo=openai&logoColor=white)
-![Google Gemini](https://img.shields.io/badge/Gemini-8E75B2?style=flat&logo=google-gemini&logoColor=white)
-![Ollama](https://img.shields.io/badge/Ollama-000?style=flat&logo=ollama&logoColor=white)
 
 **Auth & DevOps**
 
