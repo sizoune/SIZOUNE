@@ -40,7 +40,8 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
-          git diff --quiet && echo "No changes" && exit 0
           git add github-stats.svg top-langs.svg streak-stats.svg
+          # Only commit if there are staged changes (new or modified files)
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "stats: update README stats cards [skip ci]"
           git push
