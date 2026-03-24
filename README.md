@@ -76,12 +76,12 @@
 ### GitHub Stats
 
 <p align="center">
-  <img src="https://github-readme-stats.vercel.app/api?username=sizoune&theme=github_dark&hide_border=true&show_icons=true" height="165"/>
-  <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=sizoune&theme=github_dark&hide_border=true&layout=compact" height="165"/>
+  <img src="github-stats.svg" height="165"/>
+  <img src="top-langs.svg" height="165"/>
 </p>
 
 <p align="center">
-  <img src="https://streak-stats.demolab.com?user=sizoune&theme=github_dark&hide_border=true"/>
+  <img src="streak-stats.svg"/>
 </p>
 
 ---
