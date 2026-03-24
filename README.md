@@ -87,5 +87,5 @@
 ---
 
 <p align="center">
-  <img src="https://komarev.com/ghpvc/?username=sizoune&style=flat-square&color=blue" alt="Profile views"/>
+  <img src="https://visitor-badge.laobi.icu/badge?page_id=sizoune.gh.profile&left_color=blue&right_color=green" alt="Profile views"/>
 </p>
