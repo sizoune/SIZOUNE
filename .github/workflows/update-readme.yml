@@ -17,15 +17,12 @@ jobs:
           token: ${{ secrets.GH_STATS_TOKEN }}
 
       - name: Generate stats cards
-        env:
-          GH_STATS_TOKEN: ${{ secrets.GH_STATS_TOKEN }}
         run: |
-          STATS_URL="https://github-readme-stats.vercel.app/api"
+          STATS_URL="https://github-readme-stats-ruby-mu-86.vercel.app/api"
           USER="sizoune"
-          T="${GH_STATS_TOKEN}"
 
-          curl -sL "${STATS_URL}?username=${USER}&theme=github_dark&hide_border=true&include_all_commits=true&count_private=true&show_icons=true&token=${T}" -o github-stats.svg
-          curl -sL "${STATS_URL}/top-langs/?username=${USER}&theme=github_dark&hide_border=true&layout=compact&count_private=true&token=${T}" -o top-langs.svg
+          curl -sL "${STATS_URL}?username=${USER}&theme=github_dark&hide_border=true&include_all_commits=true&count_private=true&show_icons=true" -o github-stats.svg
+          curl -sL "${STATS_URL}/top-langs/?username=${USER}&theme=github_dark&hide_border=true&layout=compact&count_private=true" -o top-langs.svg
           curl -sL "https://streak-stats.demolab.com?user=${USER}&theme=github_dark&hide_border=true" -o streak-stats.svg
 
           # Validate SVGs
