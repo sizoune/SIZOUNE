@@ -22,7 +22,10 @@ jobs:
           USER="sizoune"
 
           curl -sL "${STATS_URL}?username=${USER}&theme=github_dark&hide_border=true&include_all_commits=true&count_private=true&show_icons=true" -o github-stats.svg
-          curl -sL "${STATS_URL}/top-langs/?username=${USER}&theme=github_dark&hide_border=true&layout=compact&count_private=true" -o top-langs.svg
+          # Top-langs: blend size (0.7) + repo count (0.3) so verbose old Java repos don't dominate,
+          # and exclude legacy 2016-2018 Android coursework repos that skew the picture.
+          EXCLUDE="TelkomTanjung,Makassar,BukaAmal,Sundawenang,FinalProjectIAKWildan,ClassSharing2,WIMSv2,WIMS,BelajarImageSlider,IdevMiniGame,GiziAnak,AndroidClassSharing1,Rute,TesDycode,WeatherApp,WebViewApp,TubesKita,ChatUsingFirebase,BelajarDesain,FriendlyChat"
+          curl -sL "${STATS_URL}/top-langs/?username=${USER}&theme=github_dark&hide_border=true&layout=compact&count_private=true&size_weight=0.7&count_weight=0.3&exclude_repo=${EXCLUDE}" -o top-langs.svg
           curl -sL "https://streak-stats.demolab.com?user=${USER}&theme=github_dark&hide_border=true" -o streak-stats.svg
 
           # Validate SVGs — reject API-error placeholders so we keep the previous good copy
