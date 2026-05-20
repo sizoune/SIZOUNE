@@ -25,10 +25,14 @@ jobs:
           curl -sL "${STATS_URL}/top-langs/?username=${USER}&theme=github_dark&hide_border=true&layout=compact&count_private=true" -o top-langs.svg
           curl -sL "https://streak-stats.demolab.com?user=${USER}&theme=github_dark&hide_border=true" -o streak-stats.svg
 
-          # Validate SVGs
+          # Validate SVGs — reject API-error placeholders so we keep the previous good copy
           for f in github-stats.svg top-langs.svg streak-stats.svg; do
             if ! grep -q "<svg" "$f"; then
               echo "Error: $f is not a valid SVG"
+              exit 1
+            fi
+            if grep -qiE "(Failed to retrieve|Could not fetch|GitHub API issue|Something went wrong|No contributions found)" "$f"; then
+              echo "Error: $f contains an upstream API-error placeholder; aborting to keep previous good copy"
               exit 1
             fi
           done
