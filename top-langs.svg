@@ -130,7 +130,7 @@
           data-testid="lang-progress"
           x="0"
           y="0"
-          width="71.96"
+          width="71.94"
           height="8"
           fill="#A97BFF"
         />
@@ -138,9 +138,9 @@
         <rect
           mask="url(#rect-mask)"
           data-testid="lang-progress"
-          x="71.96"
+          x="71.94"
           y="0"
-          width="52.48"
+          width="52.53"
           height="8"
           fill="#3178c6"
         />
@@ -148,9 +148,9 @@
         <rect
           mask="url(#rect-mask)"
           data-testid="lang-progress"
-          x="124.44"
+          x="124.47"
           y="0"
-          width="44.17"
+          width="44.15"
           height="8"
           fill="#b07219"
         />
@@ -158,9 +158,9 @@
         <rect
           mask="url(#rect-mask)"
           data-testid="lang-progress"
-          x="168.61"
+          x="168.62"
           y="0"
-          width="31.44"
+          width="31.43"
           height="8"
           fill="#00B4AB"
         />
@@ -170,7 +170,7 @@
           data-testid="lang-progress"
           x="200.05"
           y="0"
-          width="27.9"
+          width="27.89"
           height="8"
           fill="#f1e05a"
         />
@@ -178,9 +178,9 @@
         <rect
           mask="url(#rect-mask)"
           data-testid="lang-progress"
-          x="227.95000000000002"
+          x="227.94"
           y="0"
-          width="22.06"
+          width="22.05"
           height="8"
           fill="#e34c26"
         />
@@ -198,21 +198,21 @@
     <g class="stagger" style="animation-delay: 600ms">
       <circle cx="5" cy="6" r="5" fill="#3178c6" />
       <text data-testid="lang-name" x="15" y="10" class='lang-name'>
-        TypeScript 20.99%
+        TypeScript 21.01%
       </text>
     </g>
   </g><g transform="translate(0, 50)">
     <g class="stagger" style="animation-delay: 750ms">
       <circle cx="5" cy="6" r="5" fill="#b07219" />
       <text data-testid="lang-name" x="15" y="10" class='lang-name'>
-        Java 17.67%
+        Java 17.66%
       </text>
     </g>
   </g></g><g transform="translate(150, 0)"><g transform="translate(0, 0)">
     <g class="stagger" style="animation-delay: 450ms">
       <circle cx="5" cy="6" r="5" fill="#00B4AB" />
       <text data-testid="lang-name" x="15" y="10" class='lang-name'>
-        Dart 12.58%
+        Dart 12.57%
       </text>
     </g>
   </g><g transform="translate(0, 25)">
