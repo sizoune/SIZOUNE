@@ -6,10 +6,13 @@
 </p>
 
 <p align="center">
-  <a href="mailto:muhammadwildaniskandar@gmail.com"><img src="https://img.shields.io/badge/Email-D14836?style=for-the-badge&logo=gmail&logoColor=white"/></a>
-  <a href="https://instagram.com/mwildan.i"><img src="https://img.shields.io/badge/Instagram-%23E4405F.svg?style=for-the-badge&logo=Instagram&logoColor=white"/></a>
-  <a href="https://stackoverflow.com/users/7398985"><img src="https://img.shields.io/badge/Stack_Overflow-FE7A16?style=for-the-badge&logo=stack-overflow&logoColor=white"/></a>
-  <a href="https://tentang-wildan.vercel.app/"><img src="https://img.shields.io/badge/Portfolio-000?style=for-the-badge&logo=vercel&logoColor=white"/></a>
+  <a href="mailto:muhammadwildaniskandar@gmail.com"><img src="https://cdn.simpleicons.org/gmail/EA4335" height="28" alt="Email"/></a>
+  &nbsp;&nbsp;
+  <a href="https://instagram.com/mwildan.i"><img src="https://cdn.simpleicons.org/instagram/E4405F" height="28" alt="Instagram"/></a>
+  &nbsp;&nbsp;
+  <a href="https://stackoverflow.com/users/7398985"><img src="https://cdn.simpleicons.org/stackoverflow/F58025" height="28" alt="Stack Overflow"/></a>
+  &nbsp;&nbsp;
+  <a href="https://tentang-wildan.vercel.app/"><img src="https://cdn.simpleicons.org/vercel/FFFFFF" height="28" alt="Portfolio"/></a>
 </p>
 
 ---
