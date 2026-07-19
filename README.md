@@ -32,8 +32,6 @@
   <img src="https://skillicons.dev/icons?i=ts,kotlin,nextjs,react,flutter,nodejs,postgres,docker" alt="Core stack" />
 </p>
 
-**Also** · TanStack Start · Nuxt · FastAPI · tRPC · Prisma · Redis · Firebase · GitHub Actions · better-auth
-
 ---
 
 ### GitHub Stats
