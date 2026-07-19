@@ -12,7 +12,7 @@
   &nbsp;&nbsp;
   <a href="https://stackoverflow.com/users/7398985"><img src="https://cdn.simpleicons.org/stackoverflow/F58025" height="28" alt="Stack Overflow"/></a>
   &nbsp;&nbsp;
-  <a href="https://mwildani.my.id"><img src="https://api.iconify.design/mdi/web.svg?color=%23FFFFFF" height="28" alt="Website"/></a>
+  <a href="https://mwildani.my.id"><img src="https://cdn.simpleicons.org/googlechrome/4285F4" height="28" alt="Website"/></a>
 </p>
 
 ---
