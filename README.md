@@ -47,6 +47,16 @@
 
 ---
 
+### Contribution Forest
+
+<p align="center">
+  <img src="contribution-forest.svg" width="100%" alt="Kalimantan rainforest showing my daily GitHub contributions: larger trees represent more activity, beside a river and wooden stilt house." />
+</p>
+
+<p align="center"><sub>A year of growing — one day, one tile. Updated daily with my GitHub contribution calendar.</sub></p>
+
+---
+
 <p align="center">
   <img src="https://visitor-badge.laobi.icu/badge?page_id=sizoune.gh.profile&left_color=blue&right_color=green" alt="Profile views"/>
 </p>
