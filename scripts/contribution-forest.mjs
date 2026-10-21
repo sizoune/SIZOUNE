@@ -7,7 +7,7 @@ const point = (week, day) => [230 + week * 23 - day * 18, 245 + week * 6.3 + day
 const polygon = (points, fill, extra = '') => `<polygon points="${points.map((p) => p.join(',')).join(' ')}" fill="${fill}" ${extra}/>`;
 const tile = (w, d, fill) => polygon([point(w, d), point(w + 0.93, d), point(w + 0.93, d + 0.9), point(w, d + 0.9)], fill);
 const treeHeights = [0, 43, 64, 86, 112];
-const treeRadii = [0, 16, 21, 26, 31];
+const treeRadii = [0, 23, 29, 35, 41];
 const noise = (seed) => { const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return value - Math.floor(value); };
 
 export function readCalendar(payload) {
@@ -58,14 +58,14 @@ function tree(level, variant) {
   const lean = (variant - 2.5) * radius * 0.035;
   svg += `<path d="M-3,0 Q${lean - 2},-${height * 0.55} ${lean},-${height * 0.91} L${lean + 2},-${height * 0.91} Q${lean + 1},-${height * 0.55} 3,0Z" fill="#7f603d"/><path d="M0,-3 Q${lean + 1},-${height * 0.5} ${lean + 1},-${height * 0.84}" stroke="#b08a55" stroke-width="1.2" fill="none"/>`;
   for (const [dx, dy] of crowns) {
-    const x = dx * radius, y = -height + dy * radius;
+    const x = dx * radius, y = -height * 0.85 + dy * radius;
     svg += `<path d="M0,-${height * 0.34} Q${x * 0.2},${y + radius * 0.9} ${x},${y + radius * 0.1} M${x * 0.6},${y + radius * 0.5} l${radius * 0.32},-${radius * 0.35}" stroke="#937246" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
   }
   svg += '<path d="M-1,-15 L-8,2 L-2,-2 L0,2 L2,-3 L8,2 L2,-15" fill="#85623d"/><path d="M0,-12 L0,0 L5,1" stroke="#b08a55" fill="none"/>';
   for (let crown = 0; crown < crowns.length; crown++) {
     const [dx, dy, width, profileDepth] = crowns[crown];
-    const depth = profileDepth * 1.16;
-    const cx = dx * radius, cy = -height + dy * radius;
+    const depth = profileDepth * 1.6;
+    const cx = dx * radius, cy = -height * 0.85 + dy * radius;
     const seed = variant * 997 + crown * 113 + level * 17;
     const edge = (angle) => 0.87 + 0.09 * Math.sin(angle * 7 + seed) + 0.07 * Math.cos(angle * 11 + seed * 0.7);
     const ring = Array.from({ length: 40 }, (_, i) => {

@@ -53,8 +53,8 @@ test('lush crowns stay below the header even with maximum activity at the start 
   const trees = [...svg.matchAll(/href="#tree-4-\d" transform="translate\(([\d.]+),([\d.]+)\) scale\(([\d.]+)\)"/g)];
   assert.equal(trees.length, 365);
   for (const [, x, y, scale] of trees) {
-    assert.ok(Number(y) - 153 * Number(scale) >= 145, 'crown must not overlap the title');
-    assert.ok(Number(x) - 51 * Number(scale) > 0 && Number(x) + 51 * Number(scale) < 1600, 'crown must fit inside the banner');
+    assert.ok(Number(y) - 169 * Number(scale) >= 145, 'crown must not overlap the title');
+    assert.ok(Number(x) - 70 * Number(scale) > 0 && Number(x) + 70 * Number(scale) < 1600, 'crown must fit inside the banner');
   }
   assert.match(svg, /id="river" d="M[^\"]*C/);
 });
