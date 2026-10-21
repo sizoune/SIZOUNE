@@ -7,7 +7,7 @@ const point = (week, day) => [230 + week * 23 - day * 18, 245 + week * 6.3 + day
 const polygon = (points, fill, extra = '') => `<polygon points="${points.map((p) => p.join(',')).join(' ')}" fill="${fill}" ${extra}/>`;
 const tile = (w, d, fill) => polygon([point(w, d), point(w + 0.93, d), point(w + 0.93, d + 0.9), point(w, d + 0.9)], fill);
 const treeHeights = [0, 43, 64, 86, 112];
-const treeRadii = [0, 13, 18, 23, 29];
+const treeRadii = [0, 16, 21, 26, 31];
 const noise = (seed) => { const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return value - Math.floor(value); };
 
 export function readCalendar(payload) {
@@ -44,41 +44,59 @@ function tree(level, variant) {
   const height = treeHeights[level];
   const radius = treeRadii[level];
   const colors = [[], ['#174b37', '#246a43', '#43874c', '#6fa357', '#8db965'], ['#19583c', '#337b46', '#53994e', '#7aaf59', '#a0c66c'], ['#19563c', '#347847', '#51964d', '#7ab35b', '#a4ce76'], ['#205b3d', '#3c7d45', '#5b9c4d', '#85b85e', '#b1d17a']][level];
-  let svg = `<radialGradient id="foliage-${level}-${variant}" cx="30%" cy="22%" r="90%"><stop stop-color="${colors[3]}"/><stop offset=".5" stop-color="${colors[2]}"/><stop offset="1" stop-color="${colors[1]}"/></radialGradient><g id="tree-${level}-${variant}"><ellipse cy="2" rx="${radius + 4}" ry="7" fill="#071510" opacity=".5"/>`;
-  svg += polygon([[-3, 0], [-1.9, -height * 0.85], [1.7, -height * 0.85], [3.3, 0]], '#7f603d');
-  svg += `<path d="M0,0 L0,-${height * 0.82} M0,-${height * 0.4} L-${radius * 0.7},-${height * 0.68} M0,-${height * 0.5} L${radius * 0.7},-${height * 0.74}" stroke="#ac8551" stroke-width="1.6" fill="none"/>`;
+  // Each profile describes irregular branch crowns: x, y, width and depth in canopy radii.
+  const profiles = [
+    [[-0.12, 0, 1.18, 0.62]],
+    [[-0.36, 0.62, 0.76, 0.58], [0.3, 0, 0.76, 0.82]],
+    [[-0.58, 0.22, 0.77, 0.57], [0.55, 0, 0.86, 0.61]],
+    [[0.67, 0.78, 0.58, 0.47], [-0.32, 0, 1.08, 0.7]],
+    [[-0.48, 0.87, 0.65, 0.44], [0.5, 0.47, 0.65, 0.5], [0, -0.03, 0.73, 0.7]],
+    [[-0.62, 0.53, 0.65, 0.63], [0.42, 0, 0.96, 0.77]],
+  ];
+  const crowns = profiles[variant];
+  let svg = `<linearGradient id="foliage-${level}-${variant}" x1="0" y1="0" x2=".3" y2="1"><stop stop-color="${colors[2]}"/><stop offset="1" stop-color="${colors[0]}"/></linearGradient><g id="tree-${level}-${variant}"><ellipse cy="2" rx="${radius + 4}" ry="7" fill="#071510" opacity=".5"/>`;
+  const lean = (variant - 2.5) * radius * 0.035;
+  svg += `<path d="M-3,0 Q${lean - 2},-${height * 0.55} ${lean},-${height * 0.91} L${lean + 2},-${height * 0.91} Q${lean + 1},-${height * 0.55} 3,0Z" fill="#7f603d"/><path d="M0,-3 Q${lean + 1},-${height * 0.5} ${lean + 1},-${height * 0.84}" stroke="#b08a55" stroke-width="1.2" fill="none"/>`;
+  for (const [dx, dy] of crowns) {
+    const x = dx * radius, y = -height + dy * radius;
+    svg += `<path d="M0,-${height * 0.34} Q${x * 0.2},${y + radius * 0.9} ${x},${y + radius * 0.1} M${x * 0.6},${y + radius * 0.5} l${radius * 0.32},-${radius * 0.35}" stroke="#937246" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
+  }
   svg += '<path d="M-1,-15 L-8,2 L-2,-2 L0,2 L2,-3 L8,2 L2,-15" fill="#85623d"/><path d="M0,-12 L0,0 L5,1" stroke="#b08a55" fill="none"/>';
-  // Curved, uneven leaf masses and fine foliage replace the flat triangular facets.
-  const clusters = Array.from({ length: 15 }, (_, cluster) => {
-    const angle = cluster * 2.4 + variant * 0.7;
-    const distance = Math.sqrt((cluster + 0.5) / 15);
-    return { cluster, cx: Math.cos(angle) * radius * 0.8 * distance,
-      cy: -height + radius * 0.1 + Math.sin(angle) * radius * 0.65 * distance };
-  }).sort((a, b) => b.cy - a.cy);
-  for (const { cluster, cx, cy } of clusters) {
-    const r = radius * (0.43 + noise(cluster * 5.7 + variant) * 0.2);
-    const ring = Array.from({ length: 8 }, (_, i) => {
-      const a = i * Math.PI / 4;
-      const uneven = 1 + Math.sin(i * 4.3 + cluster) * 0.13;
-      return [cx + Math.cos(a) * r * uneven, cy + Math.sin(a) * r * uneven * 0.8];
+  for (let crown = 0; crown < crowns.length; crown++) {
+    const [dx, dy, width, profileDepth] = crowns[crown];
+    const depth = profileDepth * 1.16;
+    const cx = dx * radius, cy = -height + dy * radius;
+    const seed = variant * 997 + crown * 113 + level * 17;
+    const edge = (angle) => 0.87 + 0.09 * Math.sin(angle * 7 + seed) + 0.07 * Math.cos(angle * 11 + seed * 0.7);
+    const ring = Array.from({ length: 40 }, (_, i) => {
+      const angle = i * Math.PI / 20;
+      return [cx + Math.cos(angle) * radius * width * edge(angle), cy + Math.sin(angle) * radius * depth * edge(angle)];
     });
-    const first = [(ring.at(-1)[0] + ring[0][0]) / 2, (ring.at(-1)[1] + ring[0][1]) / 2];
-    let contour = `M${first.join(',')}`;
+    let contour = `M${(ring.at(-1)[0] + ring[0][0]) / 2},${(ring.at(-1)[1] + ring[0][1]) / 2}`;
     for (let i = 0; i < ring.length; i++) {
       const next = ring[(i + 1) % ring.length];
       contour += ` Q${ring[i].join(',')} ${(ring[i][0] + next[0]) / 2},${(ring[i][1] + next[1]) / 2}`;
     }
     svg += `<path class="canopy" d="${contour} Z" fill="url(#foliage-${level}-${variant})"/>`;
-    for (let leaf = 0; leaf < 12; leaf++) {
-      const seed = variant * 997 + cluster * 31 + leaf * 7;
-      const angle = noise(seed) * Math.PI * 2;
-      const distance = Math.sqrt(noise(seed + 1)) * r * 0.67;
-      const lx = cx + Math.cos(angle) * distance;
-      const ly = cy + Math.sin(angle) * distance * 0.7;
-      const size = r * (0.07 + noise(seed + 2) * 0.09);
-      const shade = ly < cy ? colors[3 + leaf % 2] : colors[leaf % 3];
-      svg += `<ellipse cx="${lx}" cy="${ly}" rx="${size}" ry="${size * 0.48}" transform="rotate(${-45 + noise(seed + 3) * 90},${lx},${ly})" fill="${shade}" opacity="${0.25 + noise(seed + 4) * 0.3}"/>`;
+    const leaves = ['', '', '', '', ''];
+    let veins = '';
+    const count = Math.round((280 + level * 55) / crowns.length);
+    for (let leaf = 0; leaf < count; leaf++) {
+      const n = seed + leaf * 7;
+      const angle = noise(n) * Math.PI * 2;
+      const distance = leaf % 5 === 0 ? 0.91 + noise(n + 1) * 0.15 : Math.sqrt(noise(n + 1)) * 0.96;
+      const x = cx + Math.cos(angle) * radius * width * edge(angle) * distance;
+      const y = cy + Math.sin(angle) * radius * depth * edge(angle) * distance;
+      const length = radius * (0.08 + noise(n + 2) * 0.1);
+      const direction = noise(n + 3) * Math.PI * 2;
+      const ex = Math.cos(direction) * length, ey = Math.sin(direction) * length;
+      const bx = -ey * 0.35, by = ex * 0.35;
+      const shade = Math.max(0, Math.min(4, Math.floor(2.3 - (y - cy) / (radius * depth) + noise(n + 4) * 1.9 - 0.95)));
+      leaves[shade] += `M${x},${y} q${ex * 0.5 + bx},${ey * 0.5 + by} ${ex},${ey} q${-ex * 0.5 - bx},${-ey * 0.5 - by} ${-ex},${-ey}Z`;
+      if (leaf % 7 === 0) veins += `M${x},${y} l${ex * 0.8},${ey * 0.8}`;
     }
+    leaves.forEach((path, shade) => { svg += `<path d="${path}" fill="${colors[shade]}"/>`; });
+    svg += `<path d="${veins}" stroke="${colors[4]}" stroke-width=".25" opacity=".4" fill="none"/>`;
   }
   return `${svg}</g>`;
 }
@@ -120,7 +138,7 @@ export function renderForest(calendar, username) {
   let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-labelledby="title desc">
   <title id="title">${escape(title)}</title><desc id="desc">${escape(range)}. ${total} contributions across ${active} active days. One tile per day; larger tropical trees represent higher GitHub contribution levels. A river and a wooden stilt house evoke Kalimantan.</desc>
   <defs><linearGradient id="bg" x2="0.8" y2="1"><stop stop-color="#101c23"/><stop offset="1" stop-color="#0d1117"/></linearGradient><linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2d7d7b"/><stop offset=".5" stop-color="#2d9390"/><stop offset="1" stop-color="#185859"/></linearGradient><clipPath id="river-clip"><path d="${waterPath}"/></clipPath>`;
-  for (let level = 1; level <= 4; level++) for (let variant = 0; variant < 3; variant++) svg += tree(level, variant);
+  for (let level = 1; level <= 4; level++) for (let variant = 0; variant < 6; variant++) svg += tree(level, variant);
   svg += fernSymbol();
   svg += '</defs><rect width="1600" height="850" rx="18" fill="url(#bg)"/>';
   svg += `<g font-family="system-ui,Segoe UI,sans-serif"><text x="54" y="51" fill="#aec3c8" font-size="15" letter-spacing="5">${escape(username.toUpperCase())} / CONTRIBUTION FOREST</text><text x="51" y="111" fill="#b1e8c6" font-size="49" font-weight="650">A Year of Growing</text><text x="1545" y="51" fill="#9fb5bb" font-size="16" text-anchor="end">${range}</text><text x="1545" y="88" fill="#b1e8c6" font-size="25" text-anchor="end">${total.toLocaleString('en-US')} contributions</text><text x="1545" y="117" fill="#9fb5bb" font-size="15" text-anchor="end">${active} active days · ${max} on the busiest day</text></g>`;
@@ -157,7 +175,7 @@ export function renderForest(calendar, username) {
   }
   for (const day of [...days].sort((a, b) => point(a.column, a.weekday)[1] - point(b.column, b.weekday)[1])) {
     const [x, y] = point(day.column + 0.45, day.weekday + 0.45);
-    const variant = Number(day.date.replaceAll('-', '')) % 3;
+    const variant = Math.floor(noise(Number(day.date.replaceAll('-', ''))) * 6);
     if (day.level) {
       // Keep even a maximum-activity tree below the header as the yearly window moves.
       const scale = Math.min(0.76 + Math.sqrt(day.contributionCount / max) * 0.7, (y - 151) / (treeHeights[day.level] + treeRadii[day.level] * 1.4));
