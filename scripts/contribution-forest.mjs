@@ -44,26 +44,40 @@ function tree(level, variant) {
   const height = treeHeights[level];
   const radius = treeRadii[level];
   const colors = [[], ['#174b37', '#246a43', '#43874c', '#6fa357', '#8db965'], ['#19583c', '#337b46', '#53994e', '#7aaf59', '#a0c66c'], ['#19563c', '#347847', '#51964d', '#7ab35b', '#a4ce76'], ['#205b3d', '#3c7d45', '#5b9c4d', '#85b85e', '#b1d17a']][level];
-  let svg = `<g id="tree-${level}-${variant}"><ellipse cy="2" rx="${radius + 4}" ry="7" fill="#071510" opacity=".5"/>`;
+  let svg = `<radialGradient id="foliage-${level}-${variant}" cx="30%" cy="22%" r="90%"><stop stop-color="${colors[3]}"/><stop offset=".5" stop-color="${colors[2]}"/><stop offset="1" stop-color="${colors[1]}"/></radialGradient><g id="tree-${level}-${variant}"><ellipse cy="2" rx="${radius + 4}" ry="7" fill="#071510" opacity=".5"/>`;
   svg += polygon([[-3, 0], [-1.9, -height * 0.85], [1.7, -height * 0.85], [3.3, 0]], '#7f603d');
   svg += `<path d="M0,0 L0,-${height * 0.82} M0,-${height * 0.4} L-${radius * 0.7},-${height * 0.68} M0,-${height * 0.5} L${radius * 0.7},-${height * 0.74}" stroke="#ac8551" stroke-width="1.6" fill="none"/>`;
   svg += '<path d="M-1,-15 L-8,2 L-2,-2 L0,2 L2,-3 L8,2 L2,-15" fill="#85623d"/><path d="M0,-12 L0,0 L5,1" stroke="#b08a55" fill="none"/>';
-  // Lower lobes and a sunlit upper crown form a deep, overlapping tropical canopy.
-  for (let cluster = 0; cluster < 15; cluster++) {
-    const tier = Math.floor(cluster / 5);
-    const angle = (cluster % 5) * 2.4 + variant * 0.7;
-    const cx = Math.cos(angle) * radius * (tier === 2 ? 0.38 : 0.65);
-    const cy = -height + radius * (0.75 - tier * 0.48) + Math.sin(angle) * radius * 0.24;
-    const r = radius * (0.54 + Math.sin(cluster * 5.7 + variant) * 0.1);
+  // Curved, uneven leaf masses and fine foliage replace the flat triangular facets.
+  const clusters = Array.from({ length: 15 }, (_, cluster) => {
+    const angle = cluster * 2.4 + variant * 0.7;
+    const distance = Math.sqrt((cluster + 0.5) / 15);
+    return { cluster, cx: Math.cos(angle) * radius * 0.8 * distance,
+      cy: -height + radius * 0.1 + Math.sin(angle) * radius * 0.65 * distance };
+  }).sort((a, b) => b.cy - a.cy);
+  for (const { cluster, cx, cy } of clusters) {
+    const r = radius * (0.43 + noise(cluster * 5.7 + variant) * 0.2);
     const ring = Array.from({ length: 8 }, (_, i) => {
       const a = i * Math.PI / 4;
       const uneven = 1 + Math.sin(i * 4.3 + cluster) * 0.13;
       return [cx + Math.cos(a) * r * uneven, cy + Math.sin(a) * r * uneven * 0.8];
     });
-    svg += polygon(ring, colors[0]);
-    for (let i = 0; i < 8; i++) {
-      const shade = i < 4 ? (i + cluster + variant) % 3 : 2 + (i + cluster + variant) % 3;
-      svg += polygon([[cx - r * 0.22, cy - r * 0.28], ring[i], ring[(i + 1) % 8]], colors[shade]);
+    const first = [(ring.at(-1)[0] + ring[0][0]) / 2, (ring.at(-1)[1] + ring[0][1]) / 2];
+    let contour = `M${first.join(',')}`;
+    for (let i = 0; i < ring.length; i++) {
+      const next = ring[(i + 1) % ring.length];
+      contour += ` Q${ring[i].join(',')} ${(ring[i][0] + next[0]) / 2},${(ring[i][1] + next[1]) / 2}`;
+    }
+    svg += `<path class="canopy" d="${contour} Z" fill="url(#foliage-${level}-${variant})"/>`;
+    for (let leaf = 0; leaf < 12; leaf++) {
+      const seed = variant * 997 + cluster * 31 + leaf * 7;
+      const angle = noise(seed) * Math.PI * 2;
+      const distance = Math.sqrt(noise(seed + 1)) * r * 0.67;
+      const lx = cx + Math.cos(angle) * distance;
+      const ly = cy + Math.sin(angle) * distance * 0.7;
+      const size = r * (0.07 + noise(seed + 2) * 0.09);
+      const shade = ly < cy ? colors[3 + leaf % 2] : colors[leaf % 3];
+      svg += `<ellipse cx="${lx}" cy="${ly}" rx="${size}" ry="${size * 0.48}" transform="rotate(${-45 + noise(seed + 3) * 90},${lx},${ly})" fill="${shade}" opacity="${0.25 + noise(seed + 4) * 0.3}"/>`;
     }
   }
   return `${svg}</g>`;
