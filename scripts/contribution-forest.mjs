@@ -3,9 +3,12 @@ import { pathToFileURL } from 'node:url';
 
 const levels = ['NONE', 'FIRST_QUARTILE', 'SECOND_QUARTILE', 'THIRD_QUARTILE', 'FOURTH_QUARTILE'];
 const escape = (text) => String(text).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&apos;' })[c]);
-const point = (week, day) => [180 + week * 23 - day * 17, 215 + week * 6.3 + day * 11];
+const point = (week, day) => [230 + week * 23 - day * 18, 245 + week * 6.3 + day * 12];
 const polygon = (points, fill, extra = '') => `<polygon points="${points.map((p) => p.join(',')).join(' ')}" fill="${fill}" ${extra}/>`;
 const tile = (w, d, fill) => polygon([point(w, d), point(w + 0.93, d), point(w + 0.93, d + 0.9), point(w, d + 0.9)], fill);
+const treeHeights = [0, 43, 64, 86, 112];
+const treeRadii = [0, 13, 18, 23, 29];
+const noise = (seed) => { const value = Math.sin(seed * 127.1 + 311.7) * 43758.5453; return value - Math.floor(value); };
 
 export function readCalendar(payload) {
   if (payload.errors?.length) throw new Error('GitHub GraphQL returned errors; keeping previous forest.');
@@ -38,25 +41,58 @@ export function readCalendar(payload) {
 }
 
 function tree(level, variant) {
-  const height = [0, 28, 40, 53, 70][level];
-  const radius = [0, 7.2, 9.4, 11.5, 14][level];
-  const colors = [[], ['#1e614a', '#30865a', '#4d9b66'], ['#176750', '#298d63', '#62ac74'], ['#187452', '#369b64', '#88bf70'], ['#286d48', '#65a953', '#a1cf70']][level];
-  let svg = `<g id="tree-${level}-${variant}"><ellipse cy="2" rx="${radius + 3}" ry="4" fill="#060e10" opacity=".45"/>`;
-  svg += polygon([[-1, 0], [-1.3, -height + 5], [1.4, -height + 4], [2, 0]], '#886443');
-  svg += `<path d="M0,-${height * 0.48} l-${radius * 0.6},-${height * 0.18} M1,-${height * 0.62} l${radius * 0.6},-${height * 0.12}" stroke="#9d7850" stroke-width="1.3" fill="none"/>`;
-  if (level > 2) svg += '<path d="M0,-9 L-4,1 L0,-2 L4,1 L1,-9" fill="#785b3d"/>';
-  // Layered broadleaf crowns keep the forest tropical rather than conifer-shaped.
-  for (let cluster = 0; cluster < 5; cluster++) {
-    const angle = cluster * 2.4 + variant;
-    const cx = Math.cos(angle) * radius * (cluster === 0 ? 0 : 0.55);
-    const cy = -height + Math.sin(angle) * radius * 0.4 + (cluster === 0 ? -2 : 3);
-    const r = radius * (cluster === 0 ? 0.9 : 0.7);
-    const ring = Array.from({ length: 7 }, (_, i) => [cx + Math.cos(i * Math.PI * 2 / 7) * r, cy + Math.sin(i * Math.PI * 2 / 7) * r * 0.75]);
+  const height = treeHeights[level];
+  const radius = treeRadii[level];
+  const colors = [[], ['#174b37', '#246a43', '#43874c', '#6fa357', '#8db965'], ['#19583c', '#337b46', '#53994e', '#7aaf59', '#a0c66c'], ['#19563c', '#347847', '#51964d', '#7ab35b', '#a4ce76'], ['#205b3d', '#3c7d45', '#5b9c4d', '#85b85e', '#b1d17a']][level];
+  let svg = `<g id="tree-${level}-${variant}"><ellipse cy="2" rx="${radius + 4}" ry="7" fill="#071510" opacity=".5"/>`;
+  svg += polygon([[-3, 0], [-1.9, -height * 0.85], [1.7, -height * 0.85], [3.3, 0]], '#7f603d');
+  svg += `<path d="M0,0 L0,-${height * 0.82} M0,-${height * 0.4} L-${radius * 0.7},-${height * 0.68} M0,-${height * 0.5} L${radius * 0.7},-${height * 0.74}" stroke="#ac8551" stroke-width="1.6" fill="none"/>`;
+  svg += '<path d="M-1,-15 L-8,2 L-2,-2 L0,2 L2,-3 L8,2 L2,-15" fill="#85623d"/><path d="M0,-12 L0,0 L5,1" stroke="#b08a55" fill="none"/>';
+  // Lower lobes and a sunlit upper crown form a deep, overlapping tropical canopy.
+  for (let cluster = 0; cluster < 15; cluster++) {
+    const tier = Math.floor(cluster / 5);
+    const angle = (cluster % 5) * 2.4 + variant * 0.7;
+    const cx = Math.cos(angle) * radius * (tier === 2 ? 0.38 : 0.65);
+    const cy = -height + radius * (0.75 - tier * 0.48) + Math.sin(angle) * radius * 0.24;
+    const r = radius * (0.54 + Math.sin(cluster * 5.7 + variant) * 0.1);
+    const ring = Array.from({ length: 8 }, (_, i) => {
+      const a = i * Math.PI / 4;
+      const uneven = 1 + Math.sin(i * 4.3 + cluster) * 0.13;
+      return [cx + Math.cos(a) * r * uneven, cy + Math.sin(a) * r * uneven * 0.8];
+    });
     svg += polygon(ring, colors[0]);
-    for (let i = 0; i < 7; i++) svg += polygon([[cx - r * 0.2, cy - r * 0.25], ring[i], ring[(i + 1) % 7]], colors[(i + cluster + variant) % 3]);
+    for (let i = 0; i < 8; i++) {
+      const shade = i < 4 ? (i + cluster + variant) % 3 : 2 + (i + cluster + variant) % 3;
+      svg += polygon([[cx - r * 0.22, cy - r * 0.28], ring[i], ring[(i + 1) % 8]], colors[shade]);
+    }
   }
   return `${svg}</g>`;
 }
+
+function curve(points, start = 'M') {
+  let path = `${start}${points[0].join(',')}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const a = points[Math.max(0, i - 1)], b = points[i], c = points[i + 1], d = points[Math.min(points.length - 1, i + 2)];
+    path += ` C${b[0] + (c[0] - a[0]) / 6},${b[1] + (c[1] - a[1]) / 6} ${c[0] - (d[0] - b[0]) / 6},${c[1] - (d[1] - b[1]) / 6} ${c.join(',')}`;
+  }
+  return path;
+}
+
+const riverDay = (w, bank) => bank === 'near'
+  ? 8.4 + Math.sin(w * 0.43) * 0.85 + Math.sin(w * 0.91) * 0.22
+  : 11.55 + Math.sin(w * 0.38 + 0.8) * 0.9 + Math.sin(w * 0.83) * 0.32;
+
+function fernSymbol() {
+  let svg = '<g id="fern"><ellipse cy="2" rx="10" ry="3" fill="#102b22" opacity=".7"/>';
+  for (let leaf = 0; leaf < 7; leaf++) {
+    const dx = (leaf - 3) * 4;
+    const dy = -13 + Math.abs(leaf - 3) * 2;
+    svg += `<path d="M0,2 Q${dx * 0.25},${dy - 7} ${dx},${dy} Q${dx * 0.9},${dy + 6} 0,2" fill="${leaf % 2 ? '#628e49' : '#3a7344'}"/><path d="M0,2 Q${dx * 0.4},${dy - 1} ${dx},${dy}" stroke="#8aa85d" stroke-width=".55" fill="none"/>`;
+  }
+  return `${svg}</g>`;
+}
+
+const fern = (x, y, scale) => `<use xlink:href="#fern" transform="translate(${x},${y}) scale(${scale})"/>`;
 
 export function renderForest(calendar, username) {
   const { days, total, columns } = calendar;
@@ -64,39 +100,68 @@ export function renderForest(calendar, username) {
   const max = Math.max(...days.map((day) => day.contributionCount));
   const title = `${username}'s Kalimantan contribution forest`;
   const range = `${days[0].date} — ${days.at(-1).date}`;
-  const riverEdge = Array.from({ length: columns + 2 }, (_, w) => point(w - 0.5, 7.7 + Math.sin(w * 0.45) * 0.16));
-  const riverBank = Array.from({ length: columns + 2 }, (_, w) => point(w - 0.5, 9.4 + Math.sin(w * 0.4) * 0.25)).reverse();
-  let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="760" viewBox="0 0 1600 760" role="img" aria-labelledby="title desc">
+  const riverEdge = Array.from({ length: columns + 1 }, (_, w) => point(w, riverDay(w, 'near')));
+  const riverBank = Array.from({ length: columns + 1 }, (_, w) => point(w, riverDay(w, 'far'))).reverse();
+  const waterPath = `${curve(riverEdge)} ${curve(riverBank, 'L')} Z`;
+  let svg = `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="1600" height="850" viewBox="0 0 1600 850" role="img" aria-labelledby="title desc">
   <title id="title">${escape(title)}</title><desc id="desc">${escape(range)}. ${total} contributions across ${active} active days. One tile per day; larger tropical trees represent higher GitHub contribution levels. A river and a wooden stilt house evoke Kalimantan.</desc>
-  <defs><linearGradient id="bg" x2="0.8" y2="1"><stop stop-color="#101c23"/><stop offset="1" stop-color="#0d1117"/></linearGradient><linearGradient id="water"><stop stop-color="#164549"/><stop offset=".5" stop-color="#23777a"/><stop offset="1" stop-color="#163f4a"/></linearGradient>`;
+  <defs><linearGradient id="bg" x2="0.8" y2="1"><stop stop-color="#101c23"/><stop offset="1" stop-color="#0d1117"/></linearGradient><linearGradient id="water" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#2d7d7b"/><stop offset=".5" stop-color="#2d9390"/><stop offset="1" stop-color="#185859"/></linearGradient><clipPath id="river-clip"><path d="${waterPath}"/></clipPath>`;
   for (let level = 1; level <= 4; level++) for (let variant = 0; variant < 3; variant++) svg += tree(level, variant);
-  svg += '</defs><rect width="1600" height="760" rx="18" fill="url(#bg)"/>';
+  svg += fernSymbol();
+  svg += '</defs><rect width="1600" height="850" rx="18" fill="url(#bg)"/>';
   svg += `<g font-family="system-ui,Segoe UI,sans-serif"><text x="54" y="51" fill="#aec3c8" font-size="15" letter-spacing="5">${escape(username.toUpperCase())} / CONTRIBUTION FOREST</text><text x="51" y="111" fill="#b1e8c6" font-size="49" font-weight="650">A Year of Growing</text><text x="1545" y="51" fill="#9fb5bb" font-size="16" text-anchor="end">${range}</text><text x="1545" y="88" fill="#b1e8c6" font-size="25" text-anchor="end">${total.toLocaleString('en-US')} contributions</text><text x="1545" y="117" fill="#9fb5bb" font-size="15" text-anchor="end">${active} active days · ${max} on the busiest day</text></g>`;
-  svg += polygon([...riverEdge, ...riverBank], 'url(#water)', 'stroke="#2b6262" stroke-width="1"');
-  for (let w = 0; w < columns; w++) {
-    const [x, y] = point(w, 8.5);
-    svg += `<path d="M${x},${y} l12,3 m-6,3 l8,2" stroke="#63a9a5" opacity=".26" stroke-width="1" fill="none"/>`;
+  svg += `<path d="M${point(0, 0)} L${point(columns, 0)} ${curve([...riverEdge].reverse(), 'L')} Z" fill="#203c2c"/>`;
+  svg += `<path id="river" d="${waterPath}" fill="url(#water)" stroke="#537f6b" stroke-width="3" stroke-linejoin="round"/>`;
+  svg += `<path d="${curve(riverEdge)}" fill="none" stroke="#89ab91" stroke-width="1.2" opacity=".35"/>`;
+  svg += '<g clip-path="url(#river-clip)">';
+  const shallows = Array.from({ length: columns + 1 }, (_, w) => point(w, riverDay(w, 'near') + 0.45 + noise(w) * 0.45)).reverse();
+  svg += `<path d="${curve(riverEdge)} ${curve(shallows, 'L')} Z" fill="#8ac2a5" opacity=".24"/>`;
+  for (let w = 0; w < columns; w += 0.65) {
+    for (let lane = 0; lane < 3; lane++) {
+      if (noise(w * 13 + lane) < 0.35) continue;
+      const near = riverDay(w, 'near'), far = riverDay(w, 'far');
+      const d = near + (far - near) * (lane + noise(w * 7 + lane)) / 3;
+      const [x, y] = point(w + noise(w + lane) * 0.5, d);
+      const length = 5 + noise(w * 5 + lane) * 25;
+      svg += `<path d="M${x},${y} q${length * 0.5},${-2 + Math.sin(w * 2)} ${length},${length * 0.27}" fill="none" stroke="${lane === 0 ? '#b1daca' : '#70c8bd'}" opacity="${0.12 + noise(w + lane) * 0.2}" stroke-width="${0.6 + noise(w * 3 + lane)}" stroke-linecap="round"/>`;
+    }
   }
+  svg += '</g>';
   const ground = ['#1b292a', '#203a32', '#224333', '#2b4a35', '#354f36'];
   for (const day of days) svg += `<g><title>${day.date}: ${day.contributionCount} contributions</title>${tile(day.column, day.weekday, ground[day.level])}</g>`;
-  for (let w = 0; w < columns; w += 2) {
-    const [x, y] = point(w + 0.4, 7.6);
-    svg += `<g transform="translate(${x},${y})"><ellipse rx="7" ry="3" fill="#536763"/><path d="M9,2 Q0,-12 2,-12 Q10,-9 9,2 M9,2 Q10,-14 13,-14 Q17,-9 9,2 M9,2 Q20,-7 21,-5 Q22,-1 9,2" fill="#37694e"/><path d="M8,3 L11,-7" stroke="#6d9460" fill="none"/></g>`;
+  for (let w = 0.4; w < columns - 0.5; w += 0.49) {
+    for (const bank of ['near', 'far']) {
+      const seed = w * 17 + (bank === 'near' ? 13 : 71);
+      const d = riverDay(w, bank) + (bank === 'near' ? -1 : 1) * noise(seed) * 0.23;
+      const [x, y] = point(w + noise(seed + 1) * 0.3, d);
+      const size = 2 + noise(seed + 2) * 6;
+      if (noise(seed + 3) > 0.35) {
+        svg += `<g transform="translate(${x},${y})"><ellipse cy="2" rx="${size + 2}" ry="${size * 0.5}" fill="#183d35" opacity=".65"/>${polygon([[-size, 0], [-size * 0.6, -size * 0.6], [size * 0.4, -size * 0.7], [size, -1], [size * 0.5, size * 0.4], [-size * 0.5, size * 0.4]], '#7c9184')}${polygon([[-size, 0], [-size * 0.6, -size * 0.6], [size * 0.4, -size * 0.7], [size * 0.3, 0]], '#a1ae95')}</g>`;
+      }
+      if (noise(seed + 4) > 0.3) svg += fern(x + size + 4, y - 1, 0.4 + noise(seed + 5));
+    }
   }
   for (const day of [...days].sort((a, b) => point(a.column, a.weekday)[1] - point(b.column, b.weekday)[1])) {
     const [x, y] = point(day.column + 0.45, day.weekday + 0.45);
     const variant = Number(day.date.replaceAll('-', '')) % 3;
-    if (day.level) svg += `<g><title>${day.date}: ${day.contributionCount} contributions</title><use xlink:href="#tree-${day.level}-${variant}" x="${x}" y="${y}"/></g>`;
+    if (day.level) {
+      // Keep even a maximum-activity tree below the header as the yearly window moves.
+      const scale = Math.min(0.76 + Math.sqrt(day.contributionCount / max) * 0.7, (y - 151) / (treeHeights[day.level] + treeRadii[day.level] * 1.4));
+      svg += `<g><title>${day.date}: ${day.contributionCount} contributions</title>${fern(x - 5, y + 1, 0.5)}<use xlink:href="#tree-${day.level}-${variant}" transform="translate(${x},${y}) scale(${scale})"/></g>`;
+    }
     else if (variant === 0) svg += `<path d="M${x},${y} l-2,-3 m2,3 l3,-2" stroke="#3a5645" fill="none"/>`;
   }
-  const [hx, hy] = point(columns * 0.7, 8.7);
+  const [hx, hy] = point(columns * 0.7, riverDay(columns * 0.7, 'near') + 0.8);
   svg += `<g transform="translate(${hx},${hy})"><path d="M-21,-12 V13 M-5,-7 V19 M24,-15 V7 M9,-1 V19" stroke="#977a57" stroke-width="2"/><path d="M-26,-14 L3,-24 L32,-9 L3,2Z" fill="#947750"/><path d="M-19,-17 V-40 L7,-30 V-6Z" fill="#ad8a5a"/><path d="M7,-30 L24,-40 V-17 L7,-6Z" fill="#6c654e"/><path d="M-26,-40 L-7,-60 L8,-52 L31,-36 L7,-29Z" fill="#b3a17c"/><path d="M-26,-40 L-7,-60 L8,-52 L7,-29Z" fill="#d0b78a"/><path d="M-9,-31 L-3,-29 V-18 L-9,-20Z" fill="#233c3a"/><path d="M13,-29 L19,-33 V-24 L13,-20Z" fill="#213636"/><path d="M-26,-14 L3,2 L32,-9" stroke="#c1a373" fill="none"/></g>`;
-  svg += `<g font-family="system-ui,Segoe UI,sans-serif" fill="#9fb5bb"><text x="54" y="690" font-size="15" letter-spacing="4">KALIMANTAN · ${days.length} DAYS OF GROWTH</text><text x="54" y="721" font-size="14">Each tile is a day. Each tree grows with your contributions.</text><text x="1240" y="700" font-size="14">Less</text>`;
+  svg += `<g font-family="system-ui,Segoe UI,sans-serif" fill="#9fb5bb"><text x="54" y="785" font-size="15" letter-spacing="4">KALIMANTAN · ${days.length} DAYS OF GROWTH</text><text x="54" y="816" font-size="14">Each tile is a day. Each tree grows with your contributions.</text><text x="1240" y="795" font-size="14">Less</text>`;
   ['#1b292a', '#30865a', '#298d63', '#65a953', '#a1cf70'].forEach((color, i) => {
     const x = 1295 + i * 38;
-    svg += polygon([[x, 687], [x + 13, 694], [x, 701], [x - 13, 694]], color);
+    svg += polygon([[x, 782], [x + 13, 789], [x, 796], [x - 13, 789]], color);
   });
-  return `${svg}<text x="1480" y="700" font-size="14">More</text></g></svg>\n`;
+  svg += '<text x="1480" y="795" font-size="14">More</text></g></svg>\n';
+  // Hundredths of a pixel are enough for geometry; preserve user text verbatim.
+  return svg.replace(/\b(points|d|transform|opacity|stroke-width|rx|ry|cx|cy|x|y)="([^"]*)"/g,
+    (_, name, value) => `${name}="${value.replace(/(-?\d+\.\d{2})\d+/g, '$1')}"`);
 }
 
 export async function generateForest() {

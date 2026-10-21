@@ -24,7 +24,7 @@ test('maps a partial first week by weekday and renders all real days determinist
   const svg = renderForest(calendar, 'sizoune');
   assert.equal(calendar.days[0].weekday, 3);
   assert.equal(calendar.days.length, 365);
-  assert.equal((svg.match(/<use /g) || []).length, calendar.days.filter((d) => d.level).length);
+  assert.equal((svg.match(/xlink:href="#tree-/g) || []).length, calendar.days.filter((d) => d.level).length);
   assert.equal((svg.match(/<title>202[56]-/g) || []).length, 365 + 292);
   assert.match(svg, /730 contributions/);
   assert.match(svg, /2025-10-22 — 2026-10-21/);
@@ -35,8 +35,28 @@ test('maps a partial first week by weekday and renders all real days determinist
 
 test('zero-activity calendar remains valid and has no trees', () => {
   const svg = renderForest(readCalendar(fixture(false)), 'sizoune');
-  assert.ok(!svg.includes('<use '));
+  assert.ok(!svg.includes('xlink:href="#tree-'));
   assert.match(svg, /0 contributions/);
+  assert.doesNotMatch(svg, /NaN|Infinity/);
+});
+
+test('lush crowns stay below the header even with maximum activity at the start of the year', () => {
+  const payload = fixture();
+  const calendar = payload.data.user.contributionsCollection.contributionCalendar;
+  for (const day of calendar.weeks.flatMap((week) => week.contributionDays)) {
+    day.contributionCount = 100;
+    day.contributionLevel = 'FOURTH_QUARTILE';
+  }
+  calendar.totalContributions = 36500;
+  const svg = renderForest(readCalendar(payload), 'sizoune');
+  assert.doesNotMatch(svg, /NaN|Infinity/);
+  const trees = [...svg.matchAll(/href="#tree-4-\d" transform="translate\(([\d.]+),([\d.]+)\) scale\(([\d.]+)\)"/g)];
+  assert.equal(trees.length, 365);
+  for (const [, x, y, scale] of trees) {
+    assert.ok(Number(y) - 153 * Number(scale) >= 145, 'crown must not overlap the title');
+    assert.ok(Number(x) - 51 * Number(scale) > 0 && Number(x) + 51 * Number(scale) < 1600, 'crown must fit inside the banner');
+  }
+  assert.match(svg, /id="river" d="M[^\"]*C/);
 });
 
 test('accepts GitHub calendars padded to the beginning of the first week and leap years', () => {
